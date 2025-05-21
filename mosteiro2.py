@@ -1,30 +1,30 @@
 import argparse
 import copy
 
-def is_possible(tab, l, c, n, s):
+def is_possible(board, l, c, n, s):
     for i in range(n):
-        if tab[i][c] == s or tab[l][i] == s:
+        if board[i][c] == s or board[l][i] == s:
             return False
 
     for i in range(-n, n):
-        if 0 <= l + i < n and 0 <= c + i < n and tab[l + i][c + i] == s:
+        if 0 <= l + i < n and 0 <= c + i < n and board[l + i][c + i] == s:
             return False
 
     for i in range(-n, n):
-        if 0 <= l + i < n and 0 <= c - i < n and tab[l + i][c - i] == s:
+        if 0 <= l + i < n and 0 <= c - i < n and board[l + i][c - i] == s:
             return False
 
     return True
 
-def mosteiro(tab, n, ns, l=0, c=0, lisas=0, m=float('inf'), melhor_tabuleiro=None):
+def mosteiro(board, n, ns, l=0, c=0, plain=0, m=float('inf'), best_board=None):
     if l == n:
-        if lisas < m:
-            return lisas, copy.deepcopy(tab)
+        if plain < m:
+            return plain, copy.deepcopy(board)
         else:
-            return m, melhor_tabuleiro
+            return m, best_board
 
-    if lisas >= m:
-        return m, melhor_tabuleiro
+    if plain >= m:
+        return m, best_board
 
     for s in range(ns, -1, -1):
         if s == 0:
@@ -32,28 +32,28 @@ def mosteiro(tab, n, ns, l=0, c=0, lisas=0, m=float('inf'), melhor_tabuleiro=Non
         else:
             v = 0
 
-        if is_possible(tab, l, c, n, s) or s == 0:
-            tab[l][c] = s
+        if is_possible(board, l, c, n, s) or s == 0:
+            board[l][c] = s
 
             if c + 1 < n:
-                m, melhor_tabuleiro = mosteiro(tab, n, ns, l, c + 1, lisas + v, m, melhor_tabuleiro)
+                m, best_board = mosteiro(board, n, ns, l, c + 1, plain + v, m, best_board)
             else:
-                m, melhor_tabuleiro = mosteiro(tab, n, ns, l + 1, 0, lisas + v, m, melhor_tabuleiro)
+                m, best_board = mosteiro(board, n, ns, l + 1, 0, plain + v, m, best_board)
 
-            tab[l][c] = None
+            board[l][c] = None
 
-    return m, melhor_tabuleiro
+    return m, best_board
 
 parser = argparse.ArgumentParser()
-parser.add_argument("n", type=int, help="Tamanho do Tabuleiro(n)")
-parser.add_argument("ns", type=int, help="Número de estampas disponíveis(ns)")
+parser.add_argument("n", type=int, help="Board Size(n)")
+parser.add_argument("ns", type=int, help="Number of tile patterns(ns)")
 args = parser.parse_args()
 
-tab = [[None for _ in range(args.n)] for _ in range(args.n)]
+board = [[None for _ in range(args.n)] for _ in range(args.n)]
 
-min_lisas, melhor_tab = mosteiro(tab, args.n, args.ns)
+min_plain, best_board = mosteiro(board, args.n, args.ns)
 
-print(f"\nMenor número de peças lisas: {min_lisas}")
-print("Melhor tabuleiro encontrado:")
-for linha in melhor_tab:
-    print(" ".join(str(x) for x in linha))
+print(f"\nMinimum number of plain tiles: {min_plain}")
+print("Best board found:")
+for line in best_board:
+    print(" ".join(str(x) for x in line))
